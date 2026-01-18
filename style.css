@@ -1,0 +1,292 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+:root {
+  --bg: #0b1020;
+  --card: #0f1724;
+  --muted: #9aa4b2;
+  --text: #e6f0f2;
+  --accent: #8b5cf6; /* purple */
+  --accent-2: #06b6d4; /* teal */
+  --glass: rgba(255,255,255,0.04);
+  /* pastel gradient palette for animated background */
+  --pastel-1: rgba(252, 134, 146, 0.85); /* pastel pink */
+  --pastel-2: rgba(255, 194, 125, 0.85); /* pastel peach */
+  --pastel-3: rgba(255, 255, 115, 0.85); /* pastel yellow */
+  --pastel-4: rgba(134, 255, 160, 0.85); /* pastel green */
+  --pastel-5: rgba(126, 199, 255, 0.85); /* pastel blue */
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  background: linear-gradient(180deg, #05060a 0%, var(--bg) 100%);
+  color: var(--text);
+  margin: 0;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* animated pastel gradient layer (subtle, low-opacity) */
+/* Very subtle pastel gradient waves background (two layers) */
+/* Background: two large blurred pastel layers that drift horizontally.
+   One layer is warmer (banner-friendly), the other is cooler and wider.
+   These are deliberately low-opacity so the page content remains primary. */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: -10% -10% -10% -10%; /* large coverage */
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(18px) saturate(1.00) contrast(0.99);
+  mix-blend-mode: screen;
+  will-change: background-position, opacity, transform;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* layer 1: warm, broad radial (slow drift) */
+body::before {
+  background-image: radial-gradient(circle at 10% 20%, rgba(255,179,186,0.18) 0%, rgba(255,223,186,0.12) 25%, transparent 45%),
+                    radial-gradient(circle at 60% 60%, rgba(255,245,210,0.10) 0%, transparent 40%);
+  background-position: 0% 10%;
+  opacity: 0.85; /* increased for better visibility while remaining subtle */
+  transform: translate3d(0,0,0);
+  animation: floatA 240s ease-in-out infinite;
+}
+
+/* layer 2: cool, wide radial (even slower) */
+body::after {
+  background-image: radial-gradient(circle at 85% 15%, rgba(186,225,255,0.12) 0%, transparent 40%),
+                    radial-gradient(circle at 30% 80%, rgba(186,255,201,0.08) 0%, transparent 45%);
+  background-position: 100% 90%;
+  opacity: 0.85; /* increased for better visibility while remaining subtle */
+  transform: translate3d(0,0,0);
+  animation: floatB 320s ease-in-out infinite;
+}
+
+/* Smooth, slow organic motion using transforms so the colours "float" across the view */
+@keyframes floatA {
+  0% { transform: translate3d(-6vw,-4vh,0) scale(1.04) rotate(-1deg); }
+  25% { transform: translate3d(8vw,3vh,0) scale(1.02) rotate(0.5deg); }
+  50% { transform: translate3d(-4vw,6vh,0) scale(1.03) rotate(1deg); }
+  75% { transform: translate3d(6vw,-6vh,0) scale(1.02) rotate(-0.5deg); }
+  100% { transform: translate3d(-6vw,-4vh,0) scale(1.04) rotate(-1deg); }
+}
+
+@keyframes floatB {
+  0% { transform: translate3d(6vw,6vh,0) scale(1.03) rotate(0.8deg); }
+  20% { transform: translate3d(-8vw,2vh,0) scale(1.02) rotate(-0.6deg); }
+  50% { transform: translate3d(4vw,-6vh,0) scale(1.01) rotate(0.4deg); }
+  80% { transform: translate3d(-2vw,8vh,0) scale(1.03) rotate(-0.9deg); }
+  100% { transform: translate3d(6vw,6vh,0) scale(1.03) rotate(0.8deg); }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after { animation: none !important; transform: none !important; opacity: 0.85 !important; }
+}
+
+@keyframes pastelShift {
+  0% { background: linear-gradient(120deg, var(--pastel-1), var(--pastel-3)); transform: scale(1); }
+  25% { background: linear-gradient(120deg, var(--pastel-2), var(--pastel-4)); transform: scale(1.05); }
+  50% { background: linear-gradient(120deg, var(--pastel-3), var(--pastel-5)); transform: scale(1.1); }
+  75% { background: linear-gradient(120deg, var(--pastel-4), var(--pastel-1)); transform: scale(1.05); }
+  100% { background: linear-gradient(120deg, var(--pastel-5), var(--pastel-2)); transform: scale(1); }
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px 20px;
+}
+
+.site-header {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  background: transparent; /* let the banner layer show through */
+  position: relative; z-index: 2; overflow: visible;
+}
+
+/* subtle banner overlay behind the header content */
+.site-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  filter: blur(28px) saturate(0.95);
+  background-image: radial-gradient(40% 40% at 10% 20%, rgba(255,179,186,0.12), transparent 22%),
+                    radial-gradient(35% 35% at 80% 70%, rgba(186,225,255,0.10), transparent 26%);
+  opacity: 0.85;
+}
+
+.header-inner {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 16px;
+}
+
+h1 {
+  margin: 8px 0 4px;
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--text);
+}
+
+.subtitle {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+main.container {
+  padding-top: 22px;
+  padding-bottom: 40px;
+}
+
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+  margin-bottom: 18px;
+  position: relative; z-index: 1; /* ensure cards sit above animated layer */
+}
+
+.summary-boxes { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px }
+.summary-box { background:linear-gradient(135deg, rgba(14,165,163,0.06), rgba(99,102,241,0.03)); padding:12px 14px; border-radius:10px; min-width:120px }
+.sb-value { font-weight:700; font-size:20px; color:var(--text) }
+.sb-title { font-size:12px; color:var(--muted) }
+
+.checklist-tabs { display:flex; gap:8px; margin:8px 0 12px }
+.tab-btn { padding:8px 10px; border-radius:8px; border:1px solid rgba(15,23,36,0.06); background:transparent; cursor:pointer }
+.tab-btn.active { background: linear-gradient(90deg,#6d28d9,#0ea5a3); color:white; border:none }
+
+.plan-controls { display:flex; gap:10px; align-items:center; margin-bottom:12px }
+.plan-card { border-radius:8px; padding:12px; border:1px solid var(--glass); margin-bottom:10px }
+.weeks-wrap { display:flex; gap:8px; flex-wrap:wrap }
+.week { display:flex; align-items:center; gap:8px; background: #fff; padding:6px 8px; border-radius:6px; border:1px solid rgba(15,23,36,0.04) }
+
+h2 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap:wrap;
+}
+
+button {
+  appearance: none;
+  border: 0;
+  padding: 8px 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(90deg,var(--accent),var(--accent-2));
+  color: white;
+  box-shadow: 0 6px 18px rgba(11,22,40,0.6);
+  transition: transform 120ms ease, box-shadow 140ms ease, opacity 180ms ease;
+}
+
+button.primary,
+button.primary:active { transform: translateY(1px); }
+
+button:hover { transform: translateY(-3px); opacity:0.98 }
+
+textarea {
+  width: 100%;
+  min-height: 110px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(15,23,36,0.06);
+  font-size: 14px;
+  color: var(--text);
+  background: #fff;
+}
+
+.task-list { list-style: none; padding: 0; margin: 0; }
+.task-list li {
+  display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--glass);
+}
+.task-list li:last-child { border-bottom: none; }
+
+input[type="checkbox"] { width:18px; height:18px; accent-color: var(--accent); }
+
+.site-footer { text-align:center; color:var(--muted); padding: 18px 0; font-size:13px; }
+
+/* nav */
+.site-nav { position:sticky; top:0; z-index:40; backdrop-filter: blur(6px); border-bottom:1px solid rgba(255,255,255,0.03); }
+.nav-inner { display:flex; gap:14px; align-items:center; padding:10px 20px; }
+.nav-link { color:var(--muted); text-decoration:none; padding:8px 12px; border-radius:8px }
+.nav-link:hover { color:var(--text); background: rgba(255,255,255,0.02) }
+
+/* small nav button for background toggle */
+.nav-btn { background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--muted); padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:600 }
+.nav-btn:hover { color:var(--text); background: rgba(255,255,255,0.02) }
+
+/* hide the explicit BG selection control (no visible selection box) - target id if present */
+#bgToggle, .bg-toggle { display: none !important; }
+
+/* Floating preview button (non-intrusive) */
+/* Preview/demo UI removed: background is subtle by default. */
+
+/* goal filter buttons */
+.filter-btn { background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--muted); padding:6px 8px; border-radius:8px; cursor:pointer }
+.filter-btn.active { background: linear-gradient(90deg,var(--accent),var(--accent-2)); color:white; border:none }
+
+@media (max-width: 520px) {
+  .container { padding: 20px 14px; }
+  h1 { font-size:18px }
+  .card { padding: 14px }
+}
+
+/* Goals tracker styles */
+.goal-form { display:flex; gap:10px; align-items:center; margin-bottom:12px; }
+.goal-form select,
+.goal-form input { padding:8px 10px; border-radius:8px; border:1px solid rgba(15,23,36,0.06); font-size:14px; }
+.goal-form input { flex:1 }
+.goals-container { display:flex; flex-direction:column; gap:12px }
+.goal-category { border-radius:8px; padding:12px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); }
+.goal-cat-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px }
+.goal-cat-header h3 { margin:0; font-size:14px; color: var(--text); }
+.goal-list { list-style:none; margin:0; padding:0 }
+.goal-item { display:flex; align-items:center; gap:12px; padding:12px; border-top:1px dashed rgba(255,255,255,0.03); background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00)); border-radius:6px; margin-bottom:8px }
+.goal-item:first-child { border-top: none }
+.goal-title { color: #ffffff; font-size:16px; font-weight:700; letter-spacing:0.2px }
+.goal-title.done { text-decoration: line-through; color: var(--muted) }
+.goal-remove { margin-left:auto; background:transparent; border:0; color:var(--muted); cursor:pointer; padding:6px 8px; border-radius:6px }
+.goal-remove:hover { color: white; background: linear-gradient(90deg,var(--accent),var(--accent-2)); }
+
+@media (max-width:640px) {
+  .goal-form { flex-direction:column; align-items:stretch }
+  .goal-form button { width:100% }
+}
+
+/* Metrics */
+.subtitle { color: var(--muted); margin-top: 6px; }
+.metrics-controls { display:flex; align-items:center; gap:8px; margin:12px 0; }
+.chart-wrap { background: linear-gradient(180deg, #fff, #fbfbfb); border-radius:8px; padding:12px; border:1px solid var(--glass); height:260px; }
+.chart-wrap canvas { width:100% !important; height:100% !important; }
+
+/* make inputs a bit smaller on narrow screens */
+@media (max-width:720px) {
+  .goal-form select, .goal-form input { font-size:13px; padding:7px 8px }
+}
+
+/* Background visibility control classes */
+body.bg-off::before, body.bg-off::after { opacity: 0 !important; animation: none !important; }
+/* subtle is the intended default */
+/* Slightly stronger subtle state for better visibility while remaining calm */
+body.bg-subtle::before { opacity: 0.85 !important }
+body.bg-subtle::after { opacity: 0.85 !important }
+/* visible for when you want to see the waves clearly */
+body.bg-visible::before { opacity: 0.85 !important; filter: blur(14px) saturate(1.05) contrast(1.02) !important }
+body.bg-visible::after { opacity: 0.85 !important; filter: blur(14px) saturate(1.05) contrast(1.02) !important }

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Background Debug — Personal OS</title>
+  <style>
+    html,body { height:100%; margin:0; background: #05060a; }
+    body { position: relative; font-family: Inter, system-ui, -apple-system, sans-serif; color:#ddd }
+
+    /* Two broad radial layers (strong for debug) */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      inset: -10% -10% -10% -10%;
+      pointer-events: none;
+      background-repeat: no-repeat;
+      background-size: cover;
+      mix-blend-mode: screen;
+      filter: blur(10px) saturate(1.05) contrast(1.02);
+    }
+    body::before {
+      background-image: radial-gradient(circle at 12% 22%, rgba(255,179,186,0.28) 0%, rgba(255,223,186,0.18) 30%, transparent 55%),
+                        radial-gradient(circle at 60% 60%, rgba(255,245,210,0.14) 0%, transparent 42%);
+      opacity: 0.6;
+      filter: blur(10px) saturate(1.05) contrast(1.02);
+      will-change: transform, opacity;
+      transform: translate3d(0,0,0) scale(1.02);
+      animation: floatA 240s ease-in-out infinite;
+    }
+    body::after {
+      background-image: radial-gradient(circle at 86% 14%, rgba(186,225,255,0.22) 0%, transparent 42%),
+                        radial-gradient(circle at 28% 82%, rgba(186,255,201,0.12) 0%, transparent 48%);
+      opacity: 0.46;
+      filter: blur(10px) saturate(1.05) contrast(1.02);
+      will-change: transform, opacity;
+      transform: translate3d(0,0,0) scale(1.01);
+      animation: floatB 320s ease-in-out infinite;
+    }
+
+    /* Smooth, slow organic motion using transforms so the colours "float" across the view */
+    @keyframes floatA {
+      0% { transform: translate3d(-6vw,-4vh,0) scale(1.04) rotate(-1deg); }
+      25% { transform: translate3d(8vw,3vh,0) scale(1.02) rotate(0.5deg); }
+      50% { transform: translate3d(-4vw,6vh,0) scale(1.03) rotate(1deg); }
+      75% { transform: translate3d(6vw,-6vh,0) scale(1.02) rotate(-0.5deg); }
+      100% { transform: translate3d(-6vw,-4vh,0) scale(1.04) rotate(-1deg); }
+    }
+    @keyframes floatB {
+      0% { transform: translate3d(6vw,6vh,0) scale(1.03) rotate(0.8deg); }
+      20% { transform: translate3d(-8vw,2vh,0) scale(1.02) rotate(-0.6deg); }
+      50% { transform: translate3d(4vw,-6vh,0) scale(1.01) rotate(0.4deg); }
+      80% { transform: translate3d(-2vw,8vh,0) scale(1.03) rotate(-0.9deg); }
+      100% { transform: translate3d(6vw,6vh,0) scale(1.03) rotate(0.8deg); }
+    }
+
+    .note { position: absolute; left:18px; top:18px; background: rgba(0,0,0,0.5); padding:10px 12px; border-radius:8px }
+    .hint { opacity:0.9; font-size:13px }
+    .controls { position: absolute; left:18px; bottom:18px; display:flex; gap:8px }
+    button { padding:8px 10px; border-radius:8px; background:rgba(255,255,255,0.06); color:#fff; border:1px solid rgba(255,255,255,0.04) }
+  </style>
+</head>
+<body>
+  <div class="note">
+    <div style="font-weight:700">Background Debug View</div>
+    <div class="hint">If you see soft pastel swirls flowing, Chrome renders the layers correctly.</div>
+  </div>
+  <div class="controls">
+    <button id="weaker">Weaker</button>
+    <button id="stronger">Stronger</button>
+    <button id="remove">Remove debug</button>
+  </div>
+
+  <script>
+    document.getElementById('weaker').addEventListener('click', () => {
+      document.body.style.setProperty('--dbg-before-opacity', '0.35');
+      document.body.style.setProperty('--dbg-after-opacity', '0.25');
+      document.querySelector('body::before');
+      // adjust via direct style mutation
+      const b = getComputedStyle(document.body, '::before');
+      document.querySelector('body').style.setProperty('__dbg','1');
+      // simple approach: add a style tag to change opacity
+      let s = document.getElementById('dbg-style');
+      if (!s) {
+        s = document.createElement('style'); s.id='dbg-style'; document.head.appendChild(s);
+      }
+      s.textContent = `body::before{opacity:0.35 !important} body::after{opacity:0.25 !important}`;
+    });
+    document.getElementById('stronger').addEventListener('click', () => {
+      let s = document.getElementById('dbg-style');
+      if (!s) { s = document.createElement('style'); s.id='dbg-style'; document.head.appendChild(s); }
+      s.textContent = `body::before{opacity:0.9 !important; filter: blur(6px) !important} body::after{opacity:0.75 !important; filter: blur(6px) !important}`;
+    });
+    document.getElementById('remove').addEventListener('click', () => {
+      const s = document.getElementById('dbg-style'); if (s) s.remove();
+      // remove pseudo-elements by adding a rule
+      let r = document.getElementById('dbg-remove'); if (!r) { r = document.createElement('style'); r.id='dbg-remove'; document.head.appendChild(r); }
+      r.textContent = `body::before, body::after { display:none !important }`;
+    });
+  </script>
+</body>
+</html>

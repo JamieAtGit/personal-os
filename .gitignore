@@ -1,0 +1,16 @@
+.DS_Store
+node_modules/
+.env
+.env.*
+.vscode/
+.idea/
+__pycache__/
+*.py[cod]
+*.log
+dist/
+build/
+*.sqlite3
+*.sqlite
+Thumbs.db
+coverage/
+.DS_Store

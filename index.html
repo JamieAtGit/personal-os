@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jamie – Personal OS</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-visible">
+</header>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <h1>Personal Operating System</h1>
+      <p class="subtitle">A daily system to guide focus & reflection</p>
+    </div>
+  </header>
+
+  <nav class="site-nav">
+    <div class="container nav-inner">
+      <a href="#goals" class="nav-link">Goals</a>
+      <a href="#dashboard" class="nav-link">Dashboard</a>
+      <a href="#metrics" class="nav-link">Metrics</a>
+      <a href="#plans" class="nav-link">12-Week Plans</a>
+      <a href="#reflection" class="nav-link">Reflection</a>
+      <button id="bgToggle" class="nav-btn" title="Toggle background visibility">BG</button>
+    </div>
+  </nav>
+
+  <main class="container">
+
+    <section id="mood" class="card">
+      <h2>How do you feel today?</h2>
+      <div class="controls">
+        <button onclick="setMood('easy')">Easy</button>
+        <button onclick="setMood('medium')">Medium</button>
+        <button onclick="setMood('hard')">Hard</button>
+      </div>
+    </section>
+
+    <section id="tasks" class="card">
+      <h2>Today's Tasks</h2>
+      <ul id="taskList" class="task-list"></ul>
+    </section>
+
+    <section id="goals" class="card">
+      <h2>Goals & Resolutions</h2>
+
+      <form id="goalForm" class="goal-form">
+        <select id="goalCategory" required>
+          <option value="Fitness">Fitness</option>
+          <option value="Work & University">Work & University</option>
+          <option value="Finances">Finances</option>
+          <option value="Skills">Skills</option>
+          <option value="Mental Habits">Mental Habits</option>
+          <option value="Trips">Trips</option>
+          <option value="Other">Other</option>
+        </select>
+        <input id="goalTitle" type="text" placeholder="Add a new goal (brief)" required />
+        <select id="goalTimeframe" required>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+        <input id="goalTarget" type="text" placeholder="Target (e.g. 80kg / 3200 kcal)" />
+        <button type="submit" class="primary">Add Goal</button>
+      </form>
+
+      <div class="goals-controls" style="margin-bottom:10px">
+        <button class="filter-btn" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="daily">Daily</button>
+        <button class="filter-btn" data-filter="weekly">Weekly</button>
+        <button class="filter-btn" data-filter="monthly">Monthly</button>
+        <button class="filter-btn" data-filter="yearly">Yearly</button>
+      </div>
+
+      <div id="goalsContainer" class="goals-container"></div>
+    </section>
+
+    <section id="dashboard" class="card">
+      <h2>Dashboard</h2>
+      <div id="summaryBoxes" class="summary-boxes"></div>
+      <h3 style="margin-top:12px">Checklist</h3>
+      <div class="checklist-tabs">
+        <button data-frame="daily" class="tab-btn">Daily</button>
+        <button data-frame="weekly" class="tab-btn">Weekly</button>
+        <button data-frame="monthly" class="tab-btn">Monthly</button>
+        <button data-frame="yearly" class="tab-btn">Yearly</button>
+      </div>
+      <div id="checklistContainer"></div>
+    </section>
+
+    <section id="plans" class="card">
+      <h2>12-Week Plans</h2>
+      <p class="subtitle">Create a 12-week plan for any goal and track weekly subtasks.</p>
+      <div class="plan-controls">
+        <select id="planGoalSelect"></select>
+        <button id="createPlanBtn" class="primary">Create 12-week plan</button>
+      </div>
+      <div id="plansContainer"></div>
+    </section>
+
+    <section id="metrics" class="card">
+      <h2>Metrics & Growth</h2>
+      <p class="subtitle">Track weight, lifts, study hours, reading, guitar practice and visualize progress.</p>
+
+      <form id="metricForm" class="goal-form">
+        <select id="metricType">
+          <option value="weight">Weight (kg)</option>
+          <option value="squat">Squat (kg)</option>
+          <option value="bench">Bench (kg)</option>
+          <option value="deadlift">Deadlift (kg)</option>
+          <option value="studyHours">Study Hours</option>
+          <option value="readingMinutes">Reading Minutes</option>
+          <option value="guitarMinutes">Guitar Minutes</option>
+        </select>
+        <input id="metricValue" type="number" step="any" placeholder="Value" required />
+        <input id="metricDate" type="date" />
+        <button type="submit" class="primary">Add Metric</button>
+      </form>
+
+      <div class="metrics-controls">
+        <label for="metricSelect">Show:</label>
+        <select id="metricSelect">
+          <option value="weight">Weight</option>
+          <option value="squat">Squat</option>
+          <option value="bench">Bench</option>
+          <option value="deadlift">Deadlift</option>
+          <option value="studyHours">Study Hours</option>
+          <option value="readingMinutes">Reading Minutes</option>
+          <option value="guitarMinutes">Guitar Minutes</option>
+        </select>
+      </div>
+
+      <div class="chart-wrap">
+        <canvas id="metricsChart" height="160"></canvas>
+      </div>
+    </section>
+
+    <section id="reflection" class="card">
+      <h2>Daily Reflection</h2>
+      <textarea id="reflectionText" placeholder="What did you learn today?"></textarea>
+      <div class="controls">
+        <button class="primary" onclick="saveReflection()">Save Reflection</button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">© <span id="year">2026</span> Jamie</div>
+  </footer>
+
+  <script>
+    // Keep year current
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+
+  <!-- Chart.js CDN for lightweight charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
