@@ -77,6 +77,17 @@ let metricsData = {
   guitarMinutes: []
 };
 
+// Per-metric visual and scale hints
+const METRIC_CONFIGS = {
+  weight: { label: 'Weight (kg)', color: '255,179,186', min: 50, max: 100 },
+  squat: { label: 'Squat (kg)', color: '126,199,255', min: 40, max: 200 },
+  bench: { label: 'Bench (kg)', color: '255,194,125', min: 40, max: 160 },
+  deadlift: { label: 'Deadlift (kg)', color: '134,255,160', min: 40, max: 220 },
+  studyHours: { label: 'Study Hours', color: '140,140,255', min: 0, max: 20 },
+  readingMinutes: { label: 'Reading Minutes', color: '200,160,255', min: 0, max: 240 },
+  guitarMinutes: { label: 'Guitar Minutes', color: '99,255,200', min: 0, max: 180 }
+};
+
 /* Background visibility control (off | subtle | visible) */
 const BG_LEVEL_KEY = 'personal_bg_level_v1';
 function loadBgLevel() { try { const v = localStorage.getItem(BG_LEVEL_KEY); return v || 'subtle'; } catch (e) { return 'subtle'; } }
@@ -521,16 +532,50 @@ function renderMetricsChart(type) {
   const data = metricsData[type] || [];
   const labels = data.map(d => d.date);
   const values = data.map(d => d.value);
+  // If no data, clear canvas and show a friendly message
+  const ctx = canvas.getContext('2d');
+  if (!values || values.length === 0) {
+    if (metricsChart) { metricsChart.destroy(); metricsChart = null; }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = '14px Inter, system-ui, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('No data for ' + (METRIC_CONFIGS[type]?.label || type) + '. Add metrics to see the chart.', canvas.width / 2, canvas.height / 2);
+    ctx.restore();
+    return;
+  }
+
+  const cfgColor = METRIC_CONFIGS[type] ? METRIC_CONFIGS[type].color : '14,165,163';
+  const labelText = METRIC_CONFIGS[type] ? METRIC_CONFIGS[type].label : type;
+
+  // create a subtle gradient fill for the line
+  const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  grad.addColorStop(0, `rgba(${cfgColor},0.18)`);
+  grad.addColorStop(0.8, `rgba(${cfgColor},0.05)`);
 
   const dataset = {
-    label: type,
+    label: labelText,
     data: values,
-    borderColor: 'rgba(14,165,163,0.9)',
-    backgroundColor: 'rgba(14,165,163,0.12)',
-    tension: 0.15,
-    pointRadius: 4,
-    pointBackgroundColor: 'rgba(14,165,163,1)'
+    tension: 0.24,
+    borderWidth: 2.5,
+    borderColor: `rgba(${cfgColor},0.95)`,
+    backgroundColor: grad,
+    fill: true,
+    pointRadius: 3.5,
+    pointHoverRadius: 6,
+    pointBackgroundColor: `rgba(${cfgColor},1)`
   };
+
+  const yCfg = {};
+  if (METRIC_CONFIGS[type]) {
+    // use suggested min/max that fit common ranges but still allow autoscaling
+    yCfg.suggestedMin = METRIC_CONFIGS[type].min;
+    yCfg.suggestedMax = METRIC_CONFIGS[type].max;
+    yCfg.beginAtZero = false;
+  } else {
+    yCfg.beginAtZero = true;
+  }
 
   const cfg = {
     type: 'line',
@@ -538,16 +583,28 @@ function renderMetricsChart(type) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      scales: {
-        x: { display: true, title: { display: true, text: 'Date' } },
-        y: { display: true, title: { display: true, text: type } }
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(10,14,20,0.95)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          callbacks: {
+            title: (items) => items && items.length ? (items[0].label) : '',
+            label: (ctx) => `${labelText}: ${ctx.formattedValue}`
+          }
+        }
       },
-      plugins: { legend: { display: false } }
+      scales: {
+        x: { display: true, title: { display: true, text: 'Date' }, ticks: { maxRotation: 0, autoSkip: true } },
+        y: Object.assign({ display: true, title: { display: true, text: labelText }, ticks: { beginAtZero: false } }, yCfg)
+      }
     }
   };
 
   try {
     if (metricsChart) { metricsChart.destroy(); metricsChart = null; }
-    metricsChart = new Chart(canvas.getContext('2d'), cfg);
+    metricsChart = new Chart(ctx, cfg);
   } catch (e) { console.error('Chart render failed', e); }
 }
